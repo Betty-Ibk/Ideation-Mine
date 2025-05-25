@@ -1,0 +1,37 @@
+import { Routes } from '@angular/router';
+import { IdeaListComponent } from './components/idea-list/idea-list.component';
+import { PopularIdeasComponent } from './components/popular-ideas/popular-ideas.component';
+import { MyIdeasComponent } from './components/my-ideas/my-ideas.component';
+import { AccountComponent } from './components/account/account.component';
+import { NewIdeaComponent } from './components/new-idea/new-idea.component';
+import { LoginComponent } from './components/login/login.component';
+import { AdminDashboardComponent } from './components/admin/admin-dashboard/admin-dashboard.component';
+import { authGuard, adminGuard } from './guards/auth.guard';
+import { IdeaFeedComponent } from './components/idea-feed/idea-feed.component';
+
+export const routes: Routes = [
+  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+  { path: 'dashboard', component: IdeaListComponent, canActivate: [authGuard] },
+  { path: 'popular', component: PopularIdeasComponent, canActivate: [authGuard] },
+  { path: 'my-ideas', component: MyIdeasComponent, canActivate: [authGuard] },
+  { path: 'account', component: AccountComponent, canActivate: [authGuard] },
+  { path: 'new-idea', component: NewIdeaComponent, canActivate: [authGuard] },
+  { 
+    path: 'admin', 
+    canActivate: [adminGuard],
+    children: [
+      { path: '', component: AdminDashboardComponent },
+      { path: 'users', component: AdminDashboardComponent },
+      { path: 'ideas', component: AdminDashboardComponent },
+      { path: 'settings', component: AdminDashboardComponent }
+    ]
+  },
+  { path: 'login', component: LoginComponent },
+  { path: 'idea-feed', component: IdeaFeedComponent, canActivate: [authGuard] },
+];
+
+
+
+
+
+
