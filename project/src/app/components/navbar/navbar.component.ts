@@ -2,6 +2,7 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { style } from '@angular/animations';
 
 @Component({
   selector: 'app-navbar',
@@ -16,7 +17,7 @@ import { AuthService } from '../../services/auth.service';
               <span class="menu-icon"></span>
             </button>
             <div class="logo">
-              <img src="assets/images/gtco-logo.png" alt="GTCO Logo" class="logo-image">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/2/28/GTCO_logo.svg" alt="GTCO Logo" class="logo-image">
               <div class="logo-text-container">
                 <span class="logo-text">GTCO</span>
                 <span class="logo-subtitle">Ideation Mine</span>
@@ -24,14 +25,10 @@ import { AuthService } from '../../services/auth.service';
             </div>
           </div>
           
-          <div class="search-bar">
-            <input type="text" placeholder="Search ideas..." class="search-input">
-          </div>
-          
           <div class="nav-actions">
             <a routerLink="/new-idea" class="btn btn-primary pulse-animation">+ New Idea</a>
             <div class="user-profile" (click)="toggleUserMenu()">
-              <img src="https://i.pravatar.cc/32" alt="User" class="avatar">
+              <img [src]="currentUser?.profileImage || defaultProfileImage" alt="User Avatar" class="avatar">
               <span class="username">{{ currentUser?.name || 'User' }}</span>
               
               <div class="user-menu" *ngIf="isUserMenuOpen">
@@ -47,7 +44,7 @@ import { AuthService } from '../../services/auth.service';
 
     <aside class="sidebar" [class.active]="isMenuOpen || isLargeScreen">
       <div class="sidebar-header">
-        <img src = "https://upload.wikimedia.org/wikipedia/commons/2/28/GTCO_logo.svg" alt="GTCO Logo" class="sidebar-logo">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/2/28/GTCO_logo.svg" alt="GTCO Logo" class="sidebar-logo">
         <h3 class="sidebar-title">Ideation Mine</h3>
       </div>
       <div class="sidebar-content">
@@ -445,6 +442,7 @@ export class NavbarComponent implements OnInit {
   isMenuOpen = false;
   isUserMenuOpen = false;
   isLargeScreen = false;
+  defaultProfileImage = 'https://randomuser.me/api/portraits/women/33.jpg';
   
   constructor(private authService: AuthService) {}
   
@@ -466,9 +464,7 @@ export class NavbarComponent implements OnInit {
   }
 
   get isAdmin() {
-    const isAdmin = this.authService.isAdmin();
-    console.log('Is user admin?', isAdmin);
-    return isAdmin;
+    return this.authService.isAdmin();
   }
 
   toggleMenu() {
@@ -500,7 +496,6 @@ export class NavbarComponent implements OnInit {
     this.isUserMenuOpen = false;
   }
 }
-
 
 
 

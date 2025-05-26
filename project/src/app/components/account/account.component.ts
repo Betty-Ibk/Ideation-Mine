@@ -1,243 +1,357 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-account',
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <main class="main-content">
+    <div class="account-page">
       <div class="container">
-        <div class="account-container">
-          <div class="profile-section">
-            <div class="profile-header">
-              <div class="profile-image">
-                <img src="https://i.pravatar.cc/150" alt="Profile picture">
-              </div>
-              <div class="profile-info">
-                <h2 class="profile-name">Temitayo Awodiran</h2>
-                <p class="profile-role">Innovation Department</p>
-                <p class="profile-stats">
-                  <span>12 Ideas Submitted</span>
-                  <span>•</span>
-                  <span>156 Votes Received</span>
-                </p>
-              </div>
+        <h1 class="page-title">My Account</h1>
+        
+        <div class="profile-card">
+          <div class="profile-header">
+            <div class="profile-avatar">
+              <img [src]="currentUser?.profileImage || getDefaultProfileImage()" alt="Profile Picture">
             </div>
-          </div>
-
-          <div class="account-sections">
-            <div class="section">
-              <h3 class="section-title">Profile Settings</h3>
-              <div class="form-group">
-                <label>Display Name</label>
-                <input type="text" value="Temitayo Awodiran">
-              </div>
-              <div class="form-group">
-                <label>Email</label>
-                <input type="email" value="Temitayo.awodiran@gtcobank.com">
-              </div>
-              <div class="form-group">
-                <label>Department</label>
-                <input type="text" value="Innovation Department">
-              </div>
-              <button class="btn btn-primary">Save Changes</button>
-            </div>
-
-            <div class="section">
-              <h3 class="section-title">Notification Preferences</h3>
-              <div class="preference-item">
-                <label class="checkbox-label">
-                  <input type="checkbox" checked>
-                  Email notifications for new comments
-                </label>
-              </div>
-              <div class="preference-item">
-                <label class="checkbox-label">
-                  <input type="checkbox" checked>
-                  Email notifications for idea status updates
-                </label>
-              </div>
-              <div class="preference-item">
-                <label class="checkbox-label">
-                  <input type="checkbox">
-                  Weekly digest of top ideas
-                </label>
-              </div>
-            </div>
-
-            <div class="section">
-              <h3 class="section-title">Account Security</h3>
-              <button class="btn btn-outline">Change Password</button>
-              <button class="btn btn-outline">Enable Two-Factor Authentication</button>
+            <div class="profile-info">
+              <h2 class="profile-name">{{ currentUser?.name || 'User' }}</h2>
+              <p class="profile-role">{{ currentUser?.department || 'Department' }}</p>
+              <p class="profile-stats">
+                <span>{{ currentUser?.ideasSubmitted || 0 }} Ideas Submitted</span>
+                <span>•</span>
+                <span>{{ currentUser?.votesReceived || 0 }} Votes Received</span>
+              </p>
             </div>
           </div>
         </div>
+
+        <div class="account-sections">
+          <div class="section-card">
+            <div class="section-header">
+              <h3 class="section-title">Personal Information</h3>
+              <p class="section-description">Update your personal details and contact information</p>
+            </div>
+            <div class="section-content">
+              <div class="form-group">
+                <label>Display Name</label>
+                <input type="text" [(ngModel)]="displayName" [placeholder]="currentUser?.name || 'Your Name'">
+              </div>
+              <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" [(ngModel)]="email" [placeholder]="currentUser?.email || 'your.email@example.com'">
+              </div>
+              <div class="form-group">
+                <label>Department</label>
+                <input type="text" [(ngModel)]="department" [placeholder]="currentUser?.department || 'Your Department'">
+              </div>
+            </div>
+          </div>
+          
+          <div class="section-card">
+            <div class="section-header">
+              <h3 class="section-title">Notification Settings</h3>
+              <p class="section-description">Manage how and when you receive updates</p>
+            </div>
+            <div class="section-content">
+              <div class="form-group checkbox-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" [(ngModel)]="notifyNewComments">
+                  <span>Comments on my ideas</span>
+                </label>
+                <p class="option-description">Receive notifications when someone comments on your submitted ideas</p>
+              </div>
+              <div class="form-group checkbox-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" [(ngModel)]="notifyVotes">
+                  <span>Votes on my ideas</span>
+                </label>
+                <p class="option-description">Get notified when your ideas receive new votes from colleagues</p>
+              </div>
+              <div class="form-group checkbox-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" [(ngModel)]="notifyStatusChanges">
+                  <span>Status changes</span>
+                </label>
+                <p class="option-description">Be alerted when the status of your submitted ideas changes</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button class="btn btn-primary" (click)="saveChanges()">Save Changes</button>
+        </div>
       </div>
-    </main>
+    </div>
   `,
   styles: [`
-    .main-content {
-      padding: var(--space-4) 0;
+    .account-page {
+      padding: var(--space-5) 0;
+      background-color: var(--neutral-50);
+      min-height: 100vh;
     }
-
-    .account-container {
-      max-width: 800px;
+    
+    .container {
+      max-width: 1000px;
       margin: 0 auto;
+      padding: 0 var(--space-4);
     }
-
-    .profile-section {
+    
+    .page-title {
+      margin-bottom: var(--space-5);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--neutral-800);
+      text-align: center;
+    }
+    
+    .profile-card {
       background-color: white;
       border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
       padding: var(--space-4);
-      margin-bottom: var(--space-4);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      margin-bottom: var(--space-5);
     }
-
+    
     .profile-header {
       display: flex;
-      gap: var(--space-4);
       align-items: center;
+      gap: var(--space-4);
     }
-
-    .profile-image {
+    
+    .profile-avatar {
       width: 100px;
       height: 100px;
       border-radius: 50%;
       overflow: hidden;
+      border: 3px solid var(--primary-100);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
-
-    .profile-image img {
+    
+    .profile-avatar img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
-
+    
     .profile-info {
       flex: 1;
     }
-
+    
     .profile-name {
       font-size: 1.5rem;
-      margin-bottom: 4px;
+      font-weight: 600;
+      color: var(--neutral-800);
+      margin-bottom: var(--space-1);
     }
-
+    
     .profile-role {
-      color: var(--neutral-600);
-      margin-bottom: 8px;
+      font-size: 1.1rem;
+      color: var(--primary-600);
+      margin-bottom: var(--space-2);
     }
-
+    
     .profile-stats {
-      font-size: 0.875rem;
-      color: var(--neutral-500);
+      color: var(--neutral-600);
       display: flex;
-      gap: 8px;
+      gap: var(--space-2);
       align-items: center;
     }
-
+    
     .account-sections {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: 1fr;
       gap: var(--space-4);
+      margin-bottom: var(--space-5);
     }
-
-    .section {
+    
+    .section-card {
       background-color: white;
       border-radius: 12px;
-      padding: var(--space-4);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-
+    
+    .section-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    }
+    
+    .section-header {
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid var(--neutral-100);
+      background-color: var(--neutral-50);
+    }
+    
     .section-title {
       font-size: 1.25rem;
-      margin-bottom: var(--space-3);
+      font-weight: 600;
       color: var(--neutral-800);
+      margin-bottom: var(--space-1);
     }
-
+    
+    .section-description {
+      color: var(--neutral-600);
+      font-size: 0.9rem;
+    }
+    
+    .section-content {
+      padding: var(--space-4);
+    }
+    
     .form-group {
       margin-bottom: var(--space-3);
     }
-
+    
     .form-group label {
       display: block;
-      margin-bottom: 8px;
-      font-size: 0.875rem;
+      margin-bottom: var(--space-1);
+      font-weight: 500;
       color: var(--neutral-700);
     }
-
-    .form-group input {
+    
+    .form-group input[type="text"],
+    .form-group input[type="email"] {
       width: 100%;
-      padding: 8px 12px;
+      padding: 10px 12px;
       border: 1px solid var(--neutral-300);
       border-radius: 6px;
-      font-size: 0.875rem;
+      font-size: 1rem;
+      transition: all 0.2s ease;
     }
-
+    
     .form-group input:focus {
       outline: none;
-      border-color: var(--primary-500);
-      box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.1);
+      border-color: var(--primary-400);
+      box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.1);
     }
-
-    .preference-item {
-      margin-bottom: var(--space-2);
+    
+    .checkbox-group {
+      margin-bottom: var(--space-3);
     }
-
+    
     .checkbox-label {
       display: flex;
       align-items: center;
-      gap: 8px;
       cursor: pointer;
-      font-size: 0.875rem;
-      color: var(--neutral-700);
+      font-weight: 500;
     }
-
-    .btn {
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-size: 0.875rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
+    
+    .checkbox-label input {
+      margin-right: var(--space-2);
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary-500);
     }
-
+    
+    .option-description {
+      margin-top: var(--space-1);
+      margin-left: 30px;
+      font-size: 0.85rem;
+      color: var(--neutral-500);
+    }
+    
+    .form-actions {
+      display: flex;
+      justify-content: center;
+    }
+    
     .btn-primary {
       background-color: var(--primary-500);
       color: white;
       border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
     }
-
+    
     .btn-primary:hover {
       background-color: var(--primary-600);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
-
-    .btn-outline {
-      background-color: transparent;
-      border: 1px solid var(--neutral-300);
-      color: var(--neutral-700);
-      display: block;
-      width: 100%;
-      margin-bottom: var(--space-2);
+    
+    @media (min-width: 768px) {
+      .account-sections {
+        grid-template-columns: 1fr 1fr;
+      }
     }
-
-    .btn-outline:hover {
-      background-color: var(--neutral-50);
-    }
-
-    @media (max-width: 640px) {
+    
+    @media (max-width: 767px) {
       .profile-header {
         flex-direction: column;
         text-align: center;
       }
-
-      .profile-image {
-        margin: 0 auto;
-      }
-
+      
       .profile-stats {
         justify-content: center;
+        flex-wrap: wrap;
       }
     }
   `]
 })
-export class AccountComponent {}
+export class AccountComponent implements OnInit {
+  currentUser: any;
+  displayName: string = '';
+  email: string = '';
+  department: string = '';
+  notifyNewComments: boolean = true;
+  notifyVotes: boolean = true;
+  notifyStatusChanges: boolean = true;
+  
+  constructor(private authService: AuthService) {}
+  
+  ngOnInit(): void {
+    this.currentUser = this.authService.getCurrentUser();
+    if (this.currentUser) {
+      this.displayName = this.currentUser.name;
+      this.email = this.currentUser.email;
+      this.department = this.currentUser.department;
+      this.notifyNewComments = this.currentUser.notifyNewComments !== false;
+      this.notifyVotes = this.currentUser.notifyVotes !== false;
+      this.notifyStatusChanges = this.currentUser.notifyStatusChanges !== false;
+    }
+  }
+  
+  getDefaultProfileImage(): string {
+    // Return different default images based on user role
+    if (this.currentUser?.role === 'admin') {
+      return 'https://randomuser.me/api/portraits/men/42.jpg';
+    } else {
+      return 'https://randomuser.me/api/portraits/women/33.jpg';
+    }
+  }
+  
+  saveChanges(): void {
+    if (this.currentUser) {
+      // Update the user object
+      this.currentUser.name = this.displayName;
+      this.currentUser.email = this.email;
+      this.currentUser.department = this.department;
+      this.currentUser.notifyNewComments = this.notifyNewComments;
+      this.currentUser.notifyVotes = this.notifyVotes;
+      this.currentUser.notifyStatusChanges = this.notifyStatusChanges;
+      
+      // Save to localStorage
+      localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+      
+      // Show success message
+      console.log('Profile updated successfully');
+      alert('Profile updated successfully');
+    }
+  }
+}
+
+
+
+
+
+

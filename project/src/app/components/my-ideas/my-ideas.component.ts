@@ -37,7 +37,7 @@ interface Idea {
             </div>
             <div class="idea-actions">
               <button class="btn btn-primary">Edit</button>
-              <button class="btn btn-outline">Delete</button>
+              <!-- <button class="btn btn-outline">Delete</button> -->
             </div>
           </div>
         </div>
