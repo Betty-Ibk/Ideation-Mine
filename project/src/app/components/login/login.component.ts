@@ -17,7 +17,7 @@ import { AuthService } from '../../services/auth.service';
           </div>
           <p class="logo-subtitle">IDEATION MINE</p>
           <h2>Login</h2>
-          </div>
+        </div>
         
         <div class="login-form">
           <div class="form-group">
@@ -46,15 +46,14 @@ import { AuthService } from '../../services/auth.service';
             {{ errorMessage }}
           </div>
           
-          <button (click)="login()" class="btn btn-primary login-btn">
-            Login
+          <button (click)="login()" class="btn btn-primary login-btn" [disabled]="isLoggingIn">
+            {{ isLoggingIn ? 'Logging in...' : 'Login' }}
           </button>
           
           <div class="login-help">
             <p>Default login credentials:</p>
             <p>Employee: EMP1001 / userpass</p>
             <p>Admin: ADMIN007 / adminpass</p>
-             
           </div>
         </div>
       </div>
@@ -171,6 +170,7 @@ export class LoginComponent {
   employeeId: string = '';
   password: string = '';
   errorMessage: string = '';
+  isLoggingIn: boolean = false;
   
   constructor(
     private authService: AuthService,
@@ -178,24 +178,43 @@ export class LoginComponent {
   ) {}
   
   login(): void {
+    // Clear previous error messages
+    this.errorMessage = '';
+    
+    // Debug log
+    console.log('Login attempt with:', this.employeeId, this.password);
+    
+    // Validate inputs
     if (!this.employeeId || !this.password) {
       this.errorMessage = 'Please enter both employee ID and password';
       return;
     }
     
-    this.authService.login(this.employeeId, this.password).then(user => {
-      if (user?.role === 'admin') {
-        this.router.navigate(['/admin']);
-      } else {
-        this.router.navigate(['/dashboard']);
-      }
-    }).catch(() => {
-      this.errorMessage = 'Invalid employee ID or password';
-    });
+    // Set loading state
+    this.isLoggingIn = true;
+    
+    // Attempt login
+    this.authService.login(this.employeeId, this.password)
+      .then(user => {
+        console.log('Login successful:', user);
+        this.isLoggingIn = false;
+        
+        // Navigate based on user role
+        if (user?.role === 'admin') {
+          console.log('Navigating to admin dashboard');
+          this.router.navigate(['/admin/dashboard']);
+        } else {
+          console.log('Navigating to user dashboard');
+          this.router.navigate(['/dashboard']);
+        }
+      })
+      .catch(error => {
+        console.error('Login error:', error);
+        this.isLoggingIn = false;
+        this.errorMessage = 'Invalid employee ID or password';
+      });
   }
 }
-
-
 
 
 

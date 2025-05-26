@@ -32,5 +32,3 @@ export const adminGuard = () => {
   console.log('User is not logged in, redirecting to login');
   return router.parseUrl('/login');
 };
-
-

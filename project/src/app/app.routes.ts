@@ -30,10 +30,3 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'idea-feed', component: IdeaFeedComponent, canActivate: [authGuard] },
 ];
-
-
-
-
-
-
-

@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { filter } from 'rxjs/operators';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -32,15 +33,36 @@ import { filter } from 'rxjs/operators';
     }
   `]
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   isLoginPage = true; // Default to true to hide navbar initially
 
-  constructor(private router: Router) {
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
       this.isLoginPage = event.urlAfterRedirects === '/login' || event.url === '/login';
     });
   }
+  
+  ngOnInit() {
+    // Check if this is a page refresh
+    const isPageRefresh = window.performance && 
+      window.performance.navigation && 
+      window.performance.navigation.type === 1;
+    
+    // If it's a page refresh and not already on login page, redirect to login
+    if (isPageRefresh && !this.isLoginPage) {
+      this.authService.logout();
+      this.router.navigate(['/login']);
+    }
+    
+    // Listen for beforeunload event to handle refresh
+    window.addEventListener('beforeunload', () => {
+      // We don't need to do anything here, just having the listener
+      // will help us detect refreshes in combination with performance API
+    });
+  }
 }
-

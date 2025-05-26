@@ -47,7 +47,7 @@ import { AuthService } from '../../services/auth.service';
 
     <aside class="sidebar" [class.active]="isMenuOpen || isLargeScreen">
       <div class="sidebar-header">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/2/28/GTCO_logo.svg" alt="GTCO Logo" class="sidebar-logo">
+        <img src = "https://upload.wikimedia.org/wikipedia/commons/2/28/GTCO_logo.svg" alt="GTCO Logo" class="sidebar-logo">
         <h3 class="sidebar-title">Ideation Mine</h3>
       </div>
       <div class="sidebar-content">
