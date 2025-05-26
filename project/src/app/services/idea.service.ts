@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 export interface IdeaPost {
+  status?: string;
   id: number;
   title: string;
   content: string;
@@ -32,7 +33,8 @@ export class IdeaService {
       downvotes: 3,
       userVote: null,
       tags: ["Staff Training", "HR"],
-      authorHash: "user#4442"
+      authorHash: "user#4442",
+      status: "pending"
     },
     {
       id: 2,
@@ -43,7 +45,8 @@ export class IdeaService {
       downvotes: 5,
       userVote: null,
       tags: ["Staff Well-being", "Cafeteria"],
-      authorHash: "user#4442"
+      authorHash: "user#4442",
+      status: "approved"
     },
     {
       id: 3,
@@ -54,7 +57,8 @@ export class IdeaService {
       downvotes: 2,
       userVote: null,
       tags: ["Staff Marketplace", "App Development"],
-      authorHash: "user#4442"
+      authorHash: "user#4442",
+      status: "pending"
     },
     {
       id: 4,
@@ -65,7 +69,8 @@ export class IdeaService {
       downvotes: 1,
       userVote: null,
       tags: ["Staff Celebration", "Birthday"],
-      authorHash: "user#4442"
+      authorHash: "user#4442",
+      status: "rejected"
     }
   ]);
 
@@ -78,6 +83,11 @@ export class IdeaService {
   }
 
   addIdea(idea: IdeaPost) {
+    // Ensure idea has a status if not provided
+    if (!idea.status) {
+      idea.status = 'pending';
+    }
+    
     const currentIdeas = this.ideasSubject.value;
     this.ideasSubject.next([idea, ...currentIdeas]);
   }
@@ -135,4 +145,22 @@ export class IdeaService {
       this.ideasSubject.next(newIdeas);
     }
   }
+
+  getIdeaById(id: number): IdeaPost | undefined {
+    return this.ideasSubject.value.find(idea => idea.id === id);
+  }
+
+  deleteIdea(id: number): boolean {
+    const currentIdeas = this.ideasSubject.value;
+    const index = currentIdeas.findIndex(idea => idea.id === id);
+    
+    if (index !== -1) {
+      const newIdeas = [...currentIdeas];
+      newIdeas.splice(index, 1);
+      this.ideasSubject.next(newIdeas);
+      return true;
+    }
+    return false;
+  }
 }
+

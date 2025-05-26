@@ -1,0 +1,279 @@
+<main class="admin-dashboard">
+  <div class="container">
+    <h1 class="page-title">Admin Dashboard</h1>
+    
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-number">{{ totalUsers }}</div>
+        <div class="stat-label">Total Users</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💡</div>
+        <div class="stat-number">{{ totalIdeas }}</div>
+        <div class="stat-label">Total Ideas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⬆️</div>
+        <div class="stat-number">{{ totalVotes }}</div>
+        <div class="stat-label">Total Votes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💬</div>
+        <div class="stat-number">{{ totalComments }}</div>
+        <div class="stat-label">Total Comments</div>
+      </div>
+    </div>
+    
+    <div class="admin-content">
+      <div class="admin-section">
+        <h2 class="section-title">Top Ideas</h2>
+        <div class="top-ideas">
+          <div *ngFor="let idea of topIdeas" class="top-idea-card">
+            <h3 class="idea-title">{{ idea.title }}</h3>
+            <div class="idea-meta">
+              <span class="idea-author">{{ getUserName(idea.authorHash) }}</span>
+              <span class="idea-votes">{{ idea.upvotes + idea.downvotes }} votes</span>
+            </div>
+            <div class="vote-bars">
+              <div class="vote-bar upvotes" [style.width.%]="getUpvotePercentage(idea)">
+                {{ idea.upvotes }}
+              </div>
+              <div class="vote-bar downvotes" [style.width.%]="getDownvotePercentage(idea)">
+                {{ idea.downvotes }}
+              </div>
+            </div>
+            <div class="idea-actions">
+              <button class="btn btn-text" (click)="viewIdeaDetails(idea)">View Details</button>
+              <button class="btn btn-text" (click)="viewComments(idea)">View Comments ({{ getCommentCount(idea.id) }})</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="admin-section">
+        <h2 class="section-title">Recent Activity</h2>
+        <div class="activity-feed">
+          <div *ngFor="let activity of recentActivities" class="activity-item" [ngClass]="activity.type">
+            <div class="activity-icon">
+              <span *ngIf="activity.type === 'new-idea'">💡</span>
+              <span *ngIf="activity.type === 'vote'">⬆️</span>
+              <span *ngIf="activity.type === 'comment'">💬</span>
+            </div>
+            <div class="activity-content">
+              <p class="activity-text">{{ activity.text }}</p>
+              <span class="activity-time">{{ activity.time }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="admin-section">
+      <h2 class="section-title">Manage Ideas</h2>
+      
+      <div class="filters">
+        <div class="search-box">
+          <input 
+            type="text" 
+            placeholder="Search ideas..." 
+            [(ngModel)]="searchQuery"
+            (input)="applyFilters()"
+          >
+        </div>
+        
+        <div class="status-filter">
+          <select [(ngModel)]="filterStatus" (change)="applyFilters()">
+            <option value="all">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+            <option value="implemented">Implemented</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="ideas-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Author</th>
+              <th>Status</th>
+              <th>Votes</th>
+              <th>Comments</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let idea of filteredIdeas">
+              <td>{{ idea.title }}</td>
+              <td>{{ getUserName(idea.authorHash) }} ({{ getUserId(idea.authorHash) }})</td>
+              <td>
+                <span class="status-badge" [ngClass]="idea.status || 'pending'">
+                  {{ idea.status || 'Pending' }}
+                </span>
+              </td>
+              <td>
+                <span class="vote-count upvotes">+{{ idea.upvotes }}</span> / 
+                <span class="vote-count downvotes">-{{ idea.downvotes }}</span>
+              </td>
+              <td>{{ getCommentCount(idea.id) }}</td>
+              <td class="actions">
+                <button class="btn btn-sm btn-outline" (click)="viewIdeaDetails(idea)">View</button>
+                <button class="btn btn-sm btn-outline" (click)="viewComments(idea)">Comments</button>
+                <button 
+                  *ngIf="(idea.status || 'pending') === 'pending'" 
+                  class="btn btn-sm btn-success" 
+                  (click)="approveIdea(idea)"
+                >
+                  Approve
+                </button>
+                <button 
+                  *ngIf="(idea.status || 'pending') === 'pending'" 
+                  class="btn btn-sm btn-danger" 
+                  (click)="rejectIdea(idea)"
+                >
+                  Reject
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Idea Details Modal -->
+<div *ngIf="selectedIdea" class="modal-overlay">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h2 class="modal-title">{{ selectedIdea.title }}</h2>
+      <button class="modal-close" (click)="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="idea-details">
+        <div class="idea-meta">
+          <span class="idea-author">By: {{ getUserName(selectedIdea.authorHash) }}</span>
+          <span class="idea-time">{{ selectedIdea.timestamp }}</span>
+          <span class="idea-status" [ngClass]="selectedIdea.status || 'pending'">
+            {{ selectedIdea.status || 'Pending' }}
+          </span>
+        </div>
+        
+        <div class="idea-content">
+          <p>{{ selectedIdea.content }}</p>
+        </div>
+        
+        <div class="idea-tags">
+          <span *ngFor="let tag of selectedIdea.tags" class="idea-tag">
+            #{{ tag }}
+          </span>
+        </div>
+        
+        <div class="idea-stats">
+          <div class="stat">
+            <span class="stat-label">Upvotes:</span>
+            <span class="stat-value upvotes">{{ selectedIdea.upvotes }}</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Downvotes:</span>
+            <span class="stat-value downvotes">{{ selectedIdea.downvotes }}</span>
+          </div>
+        </div>
+        
+        <div class="vote-actions">
+          <button 
+            class="vote-btn upvote" 
+            [class.voted]="selectedIdea.userVote === 'up'"
+            (click)="vote(selectedIdea, 'up')"
+          >
+            <span>👍</span>
+            {{ selectedIdea.upvotes }}
+          </button>
+          
+          <button 
+            class="vote-btn downvote" 
+            [class.voted]="selectedIdea.userVote === 'down'"
+            (click)="vote(selectedIdea, 'down')"
+          >
+            <span>👎</span>
+            {{ selectedIdea.downvotes }}
+          </button>
+        </div>
+      </div>
+      
+      <div class="modal-actions">
+        <button 
+          *ngIf="(selectedIdea.status || 'pending') === 'pending'" 
+          class="btn btn-success" 
+          (click)="approveIdea(selectedIdea); closeModal()"
+        >
+          Approve Idea
+        </button>
+        <button 
+          *ngIf="(selectedIdea.status || 'pending') === 'pending'" 
+          class="btn btn-danger" 
+          (click)="rejectIdea(selectedIdea); closeModal()"
+        >
+          Reject Idea
+        </button>
+        <button 
+          *ngIf="selectedIdea.status === 'approved'" 
+          class="btn btn-primary" 
+          (click)="implementIdea(selectedIdea); closeModal()"
+        >
+          Mark as Implemented
+        </button>
+        <button class="btn btn-outline" (click)="viewComments(selectedIdea)">
+          View Comments ({{ getCommentCount(selectedIdea.id) }})
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Comments Modal -->
+<div *ngIf="selectedIdeaForComments" class="modal-overlay">
+  <div class="modal-container comments-modal">
+    <div class="modal-header">
+      <h2 class="modal-title">Comments for "{{ selectedIdeaForComments.title }}"</h2>
+      <button class="modal-close" (click)="closeCommentsModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="comments-list">
+        <div *ngIf="getIdeaComments(selectedIdeaForComments.id).length === 0" class="no-comments">
+          <p>No comments yet for this idea.</p>
+        </div>
+        
+        <div *ngFor="let comment of getIdeaComments(selectedIdeaForComments.id)" class="comment-item">
+          <div class="comment-header">
+            <span class="comment-author">{{ getUserName(comment.authorHash) }}</span>
+            <span class="comment-time">{{ comment.timestamp }}</span>
+          </div>
+          <div class="comment-content">
+            <p>{{ comment.text }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="add-comment">
+        <h3 class="comment-section-title">Add Your Comment</h3>
+        <textarea 
+          [(ngModel)]="newComment" 
+          placeholder="Add an admin comment..."
+          rows="3"
+        ></textarea>
+        <button 
+          class="btn btn-primary" 
+          [disabled]="!newComment.trim()" 
+          (click)="addComment()"
+        >
+          Add Comment
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

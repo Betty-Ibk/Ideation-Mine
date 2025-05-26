@@ -466,7 +466,9 @@ export class NavbarComponent implements OnInit {
   }
 
   get isAdmin() {
-    return this.authService.isAdmin();
+    const isAdmin = this.authService.isAdmin();
+    console.log('Is user admin?', isAdmin);
+    return isAdmin;
   }
 
   toggleMenu() {
@@ -498,6 +500,7 @@ export class NavbarComponent implements OnInit {
     this.isUserMenuOpen = false;
   }
 }
+
 
 
 

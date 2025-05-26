@@ -20,7 +20,8 @@ export const routes: Routes = [
     path: 'admin', 
     canActivate: [adminGuard],
     children: [
-      { path: '', component: AdminDashboardComponent },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: AdminDashboardComponent },
       { path: 'users', component: AdminDashboardComponent },
       { path: 'ideas', component: AdminDashboardComponent },
       { path: 'settings', component: AdminDashboardComponent }
@@ -29,6 +30,7 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'idea-feed', component: IdeaFeedComponent, canActivate: [authGuard] },
 ];
+
 
 
 
