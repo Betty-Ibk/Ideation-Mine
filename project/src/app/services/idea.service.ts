@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 export interface IdeaPost {
-  status?: string;
   id: number;
   title: string;
   content: string;
@@ -12,11 +11,20 @@ export interface IdeaPost {
   userVote: 'up' | 'down' | null;
   tags: string[];
   authorHash: string;
+  status?: string;
   attachments?: {
     name: string;
     size: number;
     type: string;
   }[];
+  comments?: Comment[];
+}
+
+export interface Comment {
+  text: string;
+  author: string;
+  authorHash: string;
+  timestamp: string;
 }
 
 @Injectable({
@@ -172,6 +180,9 @@ export class IdeaService {
     return false;
   }
 }
+
+
+
 
 
 

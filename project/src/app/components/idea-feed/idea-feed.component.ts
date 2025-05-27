@@ -5,6 +5,14 @@ import { FormsModule } from '@angular/forms';
 import { IdeaService, IdeaPost } from '../../services/idea.service';
 import { Subscription } from 'rxjs';
 
+// Define Comment interface locally if not imported from service
+interface Comment {
+  text: string;
+  author: string;
+  authorHash: string;
+  timestamp: string;
+}
+
 @Component({
   selector: 'app-idea-feed',
   standalone: true,
@@ -39,13 +47,6 @@ import { Subscription } from 'rxjs';
         
         <div class="idea-feed">
           <div *ngFor="let idea of filteredIdeas" class="idea-card">
-            <!-- Debug info -->
-            <div style="color: red; font-size: 10px;">
-              <!-- Has tags: {{idea.tags ? 'Yes' : 'No'}} | 
-              Tags length: {{idea.tags.length || 0}} |  -->
-              <!-- Tags: {{idea.tags | json}} -->
-            </div>
-            
             <div class="idea-header">
               <h3 class="idea-title">{{ idea.title }}</h3>
               <span class="idea-time">{{ idea.timestamp }}</span>
@@ -96,10 +97,54 @@ import { Subscription } from 'rxjs';
                 </button>
               </div>
               
+              <div class="idea-actions">
+                <button class="comment-btn" (click)="viewComments(idea)">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+                  </svg>
+                  Comments {{ idea.comments?.length || 0 }}
+                </button>
+              </div>
+              
               <div class="idea-author">
                 <span>Anonymous ({{ idea.authorHash }})</span>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Comments Modal -->
+      <div *ngIf="selectedIdea" class="comments-modal-overlay">
+        <div class="comments-modal">
+          <div class="comments-header">
+            <h2 class="comments-title">Comments for "{{ selectedIdea.title }}"</h2>
+            <button class="close-btn" (click)="closeCommentsModal()">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                <path d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41z"/>
+              </svg>
+            </button>
+          </div>
+          <div class="comments-list">
+            <div *ngIf="!selectedIdea.comments || selectedIdea.comments.length === 0" class="no-comments">
+              No comments yet. Be the first to comment!
+            </div>
+            <div *ngFor="let comment of selectedIdea.comments" class="comment">
+              <div class="comment-header">
+                <span class="comment-author">{{ comment.author || 'Anonymous' }} ({{ comment.authorHash }})</span>
+                <span class="comment-time">{{ comment.timestamp }}</span>
+              </div>
+              <div class="comment-content">{{ comment.text }}</div>
+            </div>
+          </div>
+          <div class="comments-form">
+            <textarea 
+              class="comment-input" 
+              [(ngModel)]="newComment" 
+              placeholder="Add a comment..."
+             
+            ></textarea>
+            <button class="comment-submit-btn" (click)="addComment()">Add Comment</button>
           </div>
         </div>
       </div>
@@ -181,12 +226,6 @@ import { Subscription } from 'rxjs';
       border-left: 4px solid var(--primary-400);
       margin-bottom: var(--space-3);
       overflow: hidden;
-    }
-    
-    /* Dark mode styles */
-    :host-context([data-theme="dark"]) .idea-card {
-      background-color: #f5f5f5 !important;
-      color: #333333 !important;
     }
     
     .idea-header {
@@ -274,36 +313,11 @@ import { Subscription } from 'rxjs';
       border-color: #fecaca;
     }
     
-    .vote-btn.upvote svg,
-    .vote-btn.downvote svg {
-      transition: transform 0.3s ease;
-    }
-    
-    .vote-btn.upvote:active svg {
-      transform: translateY(-2px);
-    }
-    
-    .vote-btn.downvote:active svg {
-      transform: translateY(2px);
-    }
-    
     .idea-author {
       font-size: 0.75rem;
       color: var(--neutral-500);
     }
     
-    @media (max-width: 640px) {
-      .filters {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      
-      .search-container {
-        max-width: 100%;
-      }
-    }
-    
-    /* Add styles for attachments */
     .idea-attachments {
       margin: var(--space-2) 0;
       padding: var(--space-2);
@@ -342,15 +356,204 @@ import { Subscription } from 'rxjs';
     .attachment-size {
       color: var(--neutral-500);
     }
+    
+    .comment-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--neutral-200);
+      background-color: white;
+      color: var(--neutral-600);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .comment-btn:hover {
+      background-color: var(--neutral-50);
+      color: var(--primary-600);
+    }
+    
+    .idea-actions {
+      display: flex;
+      gap: var(--space-2);
+      margin-left: var(--space-2);
+    }
+    
+    /* Comments Modal Styles */
+    .comments-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .comments-modal {
+      background-color: white;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .comments-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-3);
+      border-bottom: 1px solid var(--neutral-200);
+    }
+    
+    .comments-title {
+      margin: 0;
+      font-size: 1.25rem;
+      color: var(--neutral-800);
+    }
+    
+    .close-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--neutral-500);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .comments-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--space-3);
+      max-height: 50vh;
+    }
+    
+    .no-comments {
+      text-align: center;
+      color: var(--neutral-500);
+      padding: var(--space-4);
+    }
+    
+    .comment {
+      margin-bottom: var(--space-3);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--neutral-100);
+    }
+    
+    .comment:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    
+    .comment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-1);
+    }
+    
+    .comment-author {
+      font-weight: 500;
+      color: var(--neutral-800);
+    }
+    
+    .comment-time {
+      font-size: 0.75rem;
+      color: var(--neutral-500);
+    }
+    
+    .comment-content {
+      color: var(--neutral-700);
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+    
+    .comments-form {
+      display: flex;
+      gap: var(--space-2);
+      padding: var(--space-3);
+      border-top: 1px solid var(--neutral-200);
+    }
+    
+    .comment-input {
+      flex: 1;
+      padding: var(--space-2);
+      border: 1px solid var(--neutral-300);
+      border-radius: 4px;
+      font-size: 0.875rem;
+      resize: vertical;
+      min-height: 60px;
+    }
+    
+    .comment-submit-btn {
+      padding: var(--space-2) var(--space-3);
+      border: none;
+      border-radius: 4px;
+      background-color: var(--primary-500);
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    
+    .comment-submit-btn:hover {
+      background-color: var(--primary-600);
+    }
+    
+    /* Dark theme support */
+    :host-context([data-theme="dark"]) .idea-card {
+      background-color: var(--card-bg);
+      color: var(--text-primary);
+    }
+    
+    :host-context([data-theme="dark"]) .comments-modal {
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+    
+    :host-context([data-theme="dark"]) .comment-input {
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
+      border-color: var(--border-color);
+    }
+    
+    @media (max-width: 640px) {
+      .filters {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .search-container {
+        max-width: 100%;
+      }
+      
+      .comments-modal {
+        width: 95%;
+        height: 80vh;
+      }
+    }
   `]
 })
 export class IdeaFeedComponent implements OnInit, OnDestroy {
   filteredIdeas: IdeaPost[] = [];
   ideas: IdeaPost[] = [];
-  categories: string[] = ['All', 'Staff Welfare', 'Training', 'Technology', 'HR', 'Other'];
+  categories: string[] = ['All', 'Welfare', 'Training', 'Technology', 'HR', 'Other'];
   selectedCategory: string = 'All';
   searchQuery: string = '';
   private subscription: Subscription = new Subscription();
+  
+  // New properties for comments functionality
+  selectedIdea: IdeaPost | null = null;
+  newComment: string = '';
   
   constructor(private ideaService: IdeaService) {}
   
@@ -460,38 +663,56 @@ export class IdeaFeedComponent implements OnInit, OnDestroy {
     else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
     else return (bytes / 1048576).toFixed(1) + ' MB';
   }
+  
+  viewComments(idea: IdeaPost): void {
+    this.selectedIdea = idea;
+    this.newComment = '';
+    
+    // Initialize comments array if it doesn't exist
+    if (!this.selectedIdea.comments) {
+      this.selectedIdea.comments = [];
+    }
+  }
+  
+  closeCommentsModal(): void {
+    this.selectedIdea = null;
+    this.newComment = '';
+  }
+  
+  addComment(): void {
+    if (!this.selectedIdea || !this.newComment.trim()) return;
+    
+    // Create new comment
+    const comment: Comment = {
+      text: this.newComment.trim(),
+      author: 'You',
+      authorHash: this.generateRandomHash(),
+      timestamp: 'Just now'
+    };
+    
+    // Initialize comments array if it doesn't exist
+    if (!this.selectedIdea.comments) {
+      this.selectedIdea.comments = [];
+    }
+    
+    // Add to the beginning of the comments list
+    this.selectedIdea.comments.unshift(comment);
+    
+    // Reset form
+    this.newComment = '';
+  }
+  
+  generateRandomHash(): string {
+    return Math.random().toString(36).substring(2, 8);
+  }
+
+  handleEnterKey(event: KeyboardEvent): void {
+    if (!event.shiftKey) {
+      event.preventDefault(); // Prevent default behavior (new line)
+      this.addComment();
+    }
+  }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
