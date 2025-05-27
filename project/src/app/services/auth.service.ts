@@ -56,7 +56,7 @@ export class AuthService {
             console.log('Admin login successful');
             const user = {
               id: '2',
-              name: 'John Adenije',
+              name: 'John Adeniji',
               email: 'johnadeniji@gtcobank.com',
               role: 'admin',
               department: 'IT Administration',

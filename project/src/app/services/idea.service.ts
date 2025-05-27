@@ -88,6 +88,15 @@ export class IdeaService {
       idea.status = 'pending';
     }
     
+    // Ensure tags are properly formatted
+    if (!idea.tags) {
+      idea.tags = [];
+    }
+    
+    // Log the idea being added
+    console.log('Adding idea to service:', idea);
+    console.log('Tags:', idea.tags);
+    
     const currentIdeas = this.ideasSubject.value;
     this.ideasSubject.next([idea, ...currentIdeas]);
   }
@@ -163,4 +172,6 @@ export class IdeaService {
     return false;
   }
 }
+
+
 

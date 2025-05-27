@@ -50,6 +50,7 @@ import { IdeaService } from '../../services/idea.service';
                 <option value="operations">Operations & Efficiency</option>
                 <option value="security">Security & Compliance</option>
                 <option value="sustainability">Sustainability</option>
+                <option value="welfare">Welfare</option>
                 <option value="other">Other</option>
               </select>
               <div *ngIf="category.invalid && (category.dirty || category.touched)" class="error-message">
@@ -389,6 +390,8 @@ export class NewIdeaComponent {
       resources: [''],
       hashtags: this.fb.array([])
     });
+    
+    console.log('NewIdeaComponent initialized');
   }
 
   get title() { return this.ideaForm.get('title')!; }
@@ -403,6 +406,8 @@ export class NewIdeaComponent {
     
     if (value && !this.hashtags.value.includes(value)) {
       this.hashtags.push(this.fb.control(value));
+      console.log('Added hashtag:', value);
+      console.log('Current hashtags:', this.hashtags.value);
     }
     
     this.hashtagInput.setValue('');
@@ -439,11 +444,25 @@ export class NewIdeaComponent {
   }
 
   onSubmit() {
+    console.log('Submit button clicked');
+    console.log('Form valid?', this.ideaForm.valid);
+    console.log('Form values:', this.ideaForm.value);
+    
     if (this.ideaForm.invalid) {
+      console.log('Form is invalid. Validation errors:', this.ideaForm.errors);
+      // Mark all fields as touched to show validation errors
+      Object.keys(this.ideaForm.controls).forEach(key => {
+        const control = this.ideaForm.get(key);
+        control?.markAsTouched();
+      });
       return;
     }
 
     this.isSubmitting = true;
+
+    // Get hashtags from the form array
+    const hashtagValues = this.hashtags.value || [];
+    console.log('Hashtag values:', hashtagValues);
 
     // Create a new idea object
     const newIdea = {
@@ -454,14 +473,17 @@ export class NewIdeaComponent {
       upvotes: 0,
       downvotes: 0,
       userVote: null,
-      tags: this.hashtags.value,
+      tags: hashtagValues, // Ensure hashtags are properly passed
       authorHash: 'user#' + Math.floor(1000 + Math.random() * 9000),
       attachments: this.selectedFiles.map(file => ({
         name: file.name,
         size: file.size,
         type: file.type
-      }))
+      })),
+      status: 'pending'
     };
+
+    console.log('Submitting idea with tags:', newIdea.tags);
 
     // Simulate API call
     setTimeout(() => {
@@ -470,6 +492,8 @@ export class NewIdeaComponent {
       
       this.isSubmitting = false;
       this.submitted = true;
+      
+      console.log('Idea submitted successfully');
       
       // Reset form after submission
       setTimeout(() => {
@@ -494,4 +518,16 @@ export class NewIdeaComponent {
     // In a real app, you would save to localStorage or a service
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
 

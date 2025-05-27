@@ -39,12 +39,19 @@ import { Subscription } from 'rxjs';
         
         <div class="idea-feed">
           <div *ngFor="let idea of filteredIdeas" class="idea-card">
+            <!-- Debug info -->
+            <div style="color: red; font-size: 10px;">
+              <!-- Has tags: {{idea.tags ? 'Yes' : 'No'}} | 
+              Tags length: {{idea.tags.length || 0}} |  -->
+              <!-- Tags: {{idea.tags | json}} -->
+            </div>
+            
             <div class="idea-header">
               <h3 class="idea-title">{{ idea.title }}</h3>
               <span class="idea-time">{{ idea.timestamp }}</span>
             </div>
             
-            <div class="idea-tags">
+            <div class="idea-tags" *ngIf="idea.tags && idea.tags.length > 0">
               <span *ngFor="let tag of idea.tags" class="idea-tag">
                 #{{ tag }}
               </span>
@@ -172,6 +179,14 @@ import { Subscription } from 'rxjs';
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
       padding: var(--space-3);
       border-left: 4px solid var(--primary-400);
+      margin-bottom: var(--space-3);
+      overflow: hidden;
+    }
+    
+    /* Dark mode styles */
+    :host-context([data-theme="dark"]) .idea-card {
+      background-color: #f5f5f5 !important;
+      color: #333333 !important;
     }
     
     .idea-header {
@@ -205,6 +220,8 @@ import { Subscription } from 'rxjs';
       background-color: var(--primary-50);
       padding: 2px 8px;
       border-radius: 12px;
+      display: inline-block;
+      margin-bottom: 4px;
     }
     
     .idea-content {
@@ -212,6 +229,9 @@ import { Subscription } from 'rxjs';
       font-size: 0.875rem;
       line-height: 1.5;
       margin-bottom: var(--space-3);
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+      word-break: break-word;
     }
     
     .idea-footer {
@@ -337,7 +357,57 @@ export class IdeaFeedComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subscription = this.ideaService.getIdeas().subscribe(ideas => {
       this.ideas = ideas;
+      
+      // Debug: Log all ideas and their tags
+      console.log('All ideas:', ideas);
+      ideas.forEach(idea => {
+        console.log(`Idea "${idea.title}" tags:`, idea.tags);
+        
+        // Check if tags exist and are properly formatted
+        if (!idea.tags) {
+          console.error(`Idea "${idea.title}" has no tags property`);
+        } else if (!Array.isArray(idea.tags)) {
+          console.error(`Idea "${idea.title}" tags is not an array:`, idea.tags);
+        } else if (idea.tags.length === 0) {
+          console.warn(`Idea "${idea.title}" has empty tags array`);
+        }
+      });
+      
       this.applyFilters();
+      
+      // Apply card styling based on current theme
+      setTimeout(() => {
+        const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+        const cards = document.querySelectorAll('.idea-card');
+        
+        cards.forEach(card => {
+          if (isDarkMode) {
+            (card as HTMLElement).style.setProperty('background-color', '#f5f5f5', 'important');
+            (card as HTMLElement).style.setProperty('color', '#333333', 'important');
+          } else {
+            (card as HTMLElement).style.setProperty('background-color', 'white', 'important');
+            (card as HTMLElement).style.setProperty('color', '', 'important');
+          }
+        });
+      }, 100);
+    });
+    
+    // Listen for theme changes
+    document.addEventListener('themeChanged', (e: Event) => {
+      setTimeout(() => {
+        const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+        const cards = document.querySelectorAll('.idea-card');
+        
+        cards.forEach(card => {
+          if (isDarkMode) {
+            (card as HTMLElement).style.setProperty('background-color', '#f5f5f5', 'important');
+            (card as HTMLElement).style.setProperty('color', '#333333', 'important');
+          } else {
+            (card as HTMLElement).style.setProperty('background-color', 'white', 'important');
+            (card as HTMLElement).style.setProperty('color', '', 'important');
+          }
+        });
+      }, 100);
     });
   }
   
@@ -358,7 +428,9 @@ export class IdeaFeedComponent implements OnInit, OnDestroy {
     this.filteredIdeas = this.ideas.filter(idea => {
       // Apply category filter
       if (this.selectedCategory !== 'All') {
-        const hasCategoryTag = idea.tags.some(tag => 
+        // Ensure tags exist before filtering
+        const ideaTags = idea.tags || [];
+        const hasCategoryTag = ideaTags.some(tag => 
           tag.toLowerCase().includes(this.selectedCategory.toLowerCase())
         );
         if (!hasCategoryTag) return false;
@@ -367,10 +439,11 @@ export class IdeaFeedComponent implements OnInit, OnDestroy {
       // Apply search filter
       if (this.searchQuery) {
         const query = this.searchQuery.toLowerCase();
+        const ideaTags = idea.tags || [];
         return (
           idea.title.toLowerCase().includes(query) ||
           idea.content.toLowerCase().includes(query) ||
-          idea.tags.some(tag => tag.toLowerCase().includes(query))
+          ideaTags.some(tag => tag.toLowerCase().includes(query))
         );
       }
       
@@ -388,3 +461,37 @@ export class IdeaFeedComponent implements OnInit, OnDestroy {
     else return (bytes / 1048576).toFixed(1) + ' MB';
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
