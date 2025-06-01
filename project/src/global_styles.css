@@ -83,9 +83,12 @@
   --bg-tertiary: #2d2d2d;
   
   /* Text colors */
-  --text-primary: #ffffff;
-  --text-secondary: #e0e0e0;
-  --text-tertiary: #b0b0b0;
+  --text-primary: var(--primary-500); /* Orange for text outside cards */
+  --text-secondary: var(--primary-400);
+  --text-tertiary: var(--primary-300);
+  
+  /* Card text override - will be white */
+  --card-text: white;
   
   /* UI elements */
   --border-color: #444444;
@@ -108,6 +111,10 @@
   --btn-primary-bg: var(--primary-600);
   --btn-primary-color: white;
   --btn-primary-hover: var(--primary-700);
+  
+  /* Navbar and sidebar text colors */
+  --navbar-text: var(--primary-500);
+  --sidebar-text: white;
 }
 
 * {
@@ -145,6 +152,7 @@ body.sidebar-open {
   padding: 0 var(--space-2);
 }
 
+/* Button styles */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -165,6 +173,108 @@ body.sidebar-open {
 
 .btn-primary:hover {
   background-color: var(--primary-600);
+}
+
+/* Standard button styles for all components */
+button, 
+.btn, 
+.button,
+.vote-button,
+.comment-button,
+.vote-btn,
+.comment-btn {
+  background-color: var(--primary-500);
+  color: white;
+  border: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+button:hover, 
+.btn:hover, 
+.button:hover,
+.vote-button:hover,
+.comment-button:hover,
+.vote-btn:hover,
+.comment-btn:hover {
+  background-color: var(--primary-600);
+  color: white;
+}
+
+/* Secondary/outline button styles */
+.btn-outline,
+.btn-secondary,
+button.outline,
+button.secondary {
+  background-color: transparent;
+  color: var(--primary-600);
+  border: 1px solid var(--primary-500);
+}
+
+.btn-outline:hover,
+.btn-secondary:hover,
+button.outline:hover,
+button.secondary:hover {
+  background-color: var(--primary-50);
+  color: var(--primary-700);
+  border-color: var(--primary-600);
+}
+
+/* Voted button states */
+.vote-button.upvote.voted,
+.vote-btn.upvote.voted {
+  background-color: var(--primary-600);
+  color: white;
+  border-color: var(--primary-700);
+}
+
+.vote-button.downvote.voted,
+.vote-btn.downvote.voted {
+  background-color: var(--neutral-600);
+  color: white;
+  border-color: var(--neutral-700);
+}
+
+/* Dark theme button overrides */
+[data-theme="dark"] .btn,
+[data-theme="dark"] .button,
+[data-theme="dark"] button,
+[data-theme="dark"] .vote-button,
+[data-theme="dark"] .comment-button,
+[data-theme="dark"] .vote-btn,
+[data-theme="dark"] .comment-btn {
+  /* Keep original button styling from dark theme */
+  background-color: var(--primary-500);
+  color: white;
+}
+
+[data-theme="dark"] .btn:hover,
+[data-theme="dark"] .button:hover,
+[data-theme="dark"] button:hover,
+[data-theme="dark"] .vote-button:hover,
+[data-theme="dark"] .comment-button:hover,
+[data-theme="dark"] .vote-btn:hover,
+[data-theme="dark"] .comment-btn:hover {
+  background-color: var(--primary-600);
+  color: white;
+}
+
+/* Secondary/outline button styles in dark mode */
+[data-theme="dark"] .btn-outline,
+[data-theme="dark"] .btn-secondary,
+[data-theme="dark"] button.outline,
+[data-theme="dark"] button.secondary {
+  background-color: transparent;
+  color: var(--primary-300);
+  border: 1px solid var(--primary-500);
+}
+
+[data-theme="dark"] .btn-outline:hover,
+[data-theme="dark"] .btn-secondary:hover,
+[data-theme="dark"] button.outline:hover,
+[data-theme="dark"] button.secondary:hover {
+  background-color: var(--primary-900);
+  color: var(--primary-200);
+  border-color: var(--primary-400);
 }
 
 /* Component styling classes */
@@ -215,8 +325,37 @@ a:hover {
 }
 
 /* Smooth transitions for theme changes */
-.navbar, .sidebar, .card, .stats-card, .vote-box, .comment-box, a, .tag, body, button, .btn {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+body, 
+.navbar, 
+.sidebar, 
+.card, 
+.idea-card, 
+.profile-card, 
+.section-card, 
+.stats-card, 
+.vote-box, 
+.comment-box, 
+a, 
+.tag, 
+button, 
+.btn {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Preload theme variables to prevent FOUC (Flash of Unstyled Content) */
+html {
+  transition: none;
+}
+
+/* Ensure theme changes apply immediately */
+[data-theme="dark"],
+[data-theme="light"] {
+  transition: none;
+}
+
+/* After initial load, enable transitions */
+body.theme-loaded * {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 /* Dark theme specific component overrides */
@@ -256,6 +395,70 @@ a:hover {
 [data-theme="dark"] .idea-tag {
   background-color: var(--primary-700) !important;
   color: white !important;
+}
+
+/* Add this to ensure card text is white in dark mode */
+[data-theme="dark"] .card,
+[data-theme="dark"] .idea-card,
+[data-theme="dark"] .profile-card,
+[data-theme="dark"] .section-card,
+[data-theme="dark"] .stats-card {
+  color: var(--card-text) !important;
+}
+
+[data-theme="dark"] .card *:not(.btn):not(.button),
+[data-theme="dark"] .idea-card *:not(.btn):not(.button),
+[data-theme="dark"] .profile-card *:not(.btn):not(.button),
+[data-theme="dark"] .section-card *:not(.btn):not(.button),
+[data-theme="dark"] .stats-card *:not(.btn):not(.button) {
+  color: var(--card-text) !important;
+}
+
+/* Text outside cards should be orange in dark mode */
+[data-theme="dark"] body > *:not(.card):not(.idea-card):not(.profile-card):not(.section-card):not(.stats-card):not(.btn):not(.button) {
+  color: var(--primary-500);
+}
+
+/* Preserve button styling */
+[data-theme="dark"] .btn,
+[data-theme="dark"] .button {
+  /* Keep original button styling */
+  color: inherit;
+}
+
+/* Ensure primary buttons maintain their styling */
+[data-theme="dark"] .btn-primary {
+  background-color: var(--primary-500);
+  color: white;
+}
+
+[data-theme="dark"] .btn-primary:hover {
+  background-color: var(--primary-600);
+}
+
+/* Dark theme specific component overrides */
+[data-theme="dark"] .card,
+[data-theme="dark"] .navbar,
+[data-theme="dark"] .sidebar,
+[data-theme="dark"] .stats-card {
+  background-color: #333333;
+}
+
+[data-theme="dark"] .navbar {
+  color: var(--navbar-text);
+}
+
+[data-theme="dark"] .sidebar {
+  color: var(--sidebar-text);
+}
+
+[data-theme="dark"] .sidebar .nav-item {
+  color: var(--sidebar-text);
+}
+
+[data-theme="dark"] .sidebar .nav-item.active {
+  background-color: var(--primary-800);
+  color: var(--primary-300);
 }
 
 

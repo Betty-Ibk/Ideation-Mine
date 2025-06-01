@@ -31,7 +31,7 @@ interface Idea {
   template: `
     <main class="main-content">
       <div class="container">
-        <h2 class="page-title">Popular Ideas</h2>
+        <h2 class="page-title" style="color: #FF7A00">Popular Ideas</h2>
         <div class="ideas-list">
           @for (idea of popularIdeas; track idea.id) {
             <div class="idea-card">
@@ -48,13 +48,13 @@ interface Idea {
                   class="vote-button upvote" 
                   [class.voted]="idea.userVote === 'up'"
                   (click)="vote(idea, 'up')">
-                  ⬆ {{idea.upvotes}}
+                  👍 {{idea.upvotes}}
                 </button>
                 <button 
                   class="vote-button downvote" 
                   [class.voted]="idea.userVote === 'down'"
                   (click)="vote(idea, 'down')">
-                  ⬇ {{idea.downvotes}}
+                  👎 {{idea.downvotes}}
                 </button>
                 <button class="comment-button" (click)="viewComments(idea)">
                   💬 {{idea.commentsList.length}}
@@ -328,19 +328,35 @@ interface Idea {
     /* Dark theme support */
     :host-context([data-theme="dark"]) .idea-card {
       background-color: var(--card-bg);
-      color: var(--text-primary);
+      color: var(--card-text);
     }
     
-    :host-context([data-theme="dark"]) .comments-modal {
-      background-color: var(--bg-secondary);
-      color: var(--text-primary);
+    :host-context([data-theme="dark"]) .idea-title,
+    :host-context([data-theme="dark"]) .idea-description,
+    :host-context([data-theme="dark"]) .idea-meta {
+      color: var(--card-text);
     }
     
+    /* Orange buttons in dark mode */
     :host-context([data-theme="dark"]) .vote-button,
     :host-context([data-theme="dark"]) .comment-button {
-      background-color: var(--bg-tertiary);
-      color: var(--text-secondary);
-      border-color: var(--border-color);
+      background-color: var(--primary-500);
+      color: white;
+      border-color: var(--primary-600);
+    }
+    
+    :host-context([data-theme="dark"]) .vote-button:hover,
+    :host-context([data-theme="dark"]) .comment-button:hover {
+      background-color: var(--primary-600);
+      color: white;
+    }
+    
+    /* Ensure voted buttons have distinct styling */
+    :host-context([data-theme="dark"]) .vote-button.upvote.voted,
+    :host-context([data-theme="dark"]) .vote-button.downvote.voted {
+      background-color: var(--primary-700);
+      color: white;
+      border-color: var(--primary-800);
     }
     
     :host-context([data-theme="dark"]) .comment-input {
@@ -529,6 +545,8 @@ interface Idea {
     this.currentPage = 0; // Go to first page to see the new comment
   }
 }
+
+
 
 
 

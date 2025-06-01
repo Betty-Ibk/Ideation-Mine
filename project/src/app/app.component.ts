@@ -64,5 +64,10 @@ export class AppComponent implements OnInit {
       // We don't need to do anything here, just having the listener
       // will help us detect refreshes in combination with performance API
     });
+    
+    // Mark theme as loaded after a brief delay to ensure initial styles are applied
+    setTimeout(() => {
+      document.body.classList.add('theme-loaded');
+    }, 50);
   }
 }

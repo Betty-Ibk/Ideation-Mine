@@ -474,6 +474,66 @@ import { ThemeService } from '../../services/theme.service';
         display: none;
       }
     }
+
+    /* Dark theme overrides */
+    :host-context([data-theme="dark"]) .navbar {
+      background-color: var(--navbar-bg);
+    }
+
+    :host-context([data-theme="dark"]) .logo-text {
+      color: var(--primary-500);
+    }
+
+    :host-context([data-theme="dark"]) .logo-subtitle {
+      color: var(--primary-400);
+    }
+
+    :host-context([data-theme="dark"]) .username {
+      color: var(--primary-500);
+    }
+
+    :host-context([data-theme="dark"]) .sidebar {
+      background-color: var(--sidebar-bg);
+    }
+
+    :host-context([data-theme="dark"]) .sidebar-title {
+      color: var(--primary-500);
+    }
+
+    :host-context([data-theme="dark"]) .nav-item {
+      color: white;
+    }
+
+    :host-context([data-theme="dark"]) .nav-item:hover {
+      background-color: var(--primary-900);
+      color: var(--primary-300);
+      border-left-color: var(--primary-500);
+    }
+
+    :host-context([data-theme="dark"]) .nav-item.active {
+      background-color: var(--primary-800);
+      color: var(--primary-300);
+      border-left-color: var(--primary-500);
+    }
+
+    :host-context([data-theme="dark"]) .sidebar-footer {
+      color: white;
+      border-top-color: #3a3a3a;
+    }
+
+    :host-context([data-theme="dark"]) .user-menu {
+      background-color: var(--bg-secondary);
+      border-color: var(--border-color);
+    }
+
+    :host-context([data-theme="dark"]) .user-menu-item {
+      color: white;
+    }
+
+    :host-context([data-theme="dark"]) .user-menu-item:hover {
+      background-color: var(--primary-800);
+      color: var(--primary-300);
+    }
   `]
 })
 export class NavbarComponent implements OnInit {
@@ -550,6 +610,7 @@ export class NavbarComponent implements OnInit {
     this.isUserMenuOpen = false;
   }
 }
+
 
 
 

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { ThemeUtilsService } from '../../services/theme-utils.service';
 
 @Component({
   selector: 'app-account',
@@ -10,7 +11,7 @@ import { AuthService } from '../../services/auth.service';
   template: `
     <div class="account-page">
       <div class="container">
-        <h1 class="page-title">My Account</h1>
+        <h1 class="page-title" style="color: #FF7A00">My Account</h1>
         
         <div class="profile-card">
           <div class="profile-header">
@@ -296,6 +297,53 @@ import { AuthService } from '../../services/auth.service';
         flex-wrap: wrap;
       }
     }
+    
+    /* Dark theme support */
+    :host-context([data-theme="dark"]) .account-page {
+      background-color: var(--bg-primary);
+    }
+    
+    :host-context([data-theme="dark"]) .profile-card,
+    :host-context([data-theme="dark"]) .section-card {
+      background-color: var(--card-bg);
+      color: var(--text-primary);
+    }
+    
+    :host-context([data-theme="dark"]) .profile-name,
+    :host-context([data-theme="dark"]) .section-title {
+      color: var(--text-primary);
+    }
+    
+    :host-context([data-theme="dark"]) .profile-role,
+    :host-context([data-theme="dark"]) .section-description {
+      color: var(--text-secondary);
+    }
+    
+    :host-context([data-theme="dark"]) .profile-stats,
+    :host-context([data-theme="dark"]) .option-description {
+      color: var(--text-tertiary);
+    }
+    
+    :host-context([data-theme="dark"]) .form-group input[type="text"],
+    :host-context([data-theme="dark"]) .form-group input[type="email"] {
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
+      border-color: var(--border-color);
+    }
+    
+    :host-context([data-theme="dark"]) .form-group input:focus {
+      border-color: var(--primary-400);
+      box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.2);
+    }
+    
+    :host-context([data-theme="dark"]) .section-header {
+      background-color: var(--bg-secondary);
+      border-color: var(--border-color);
+    }
+    
+    :host-context([data-theme="dark"]) .checkbox-label {
+      color: var(--text-primary);
+    }
   `]
 })
 export class AccountComponent implements OnInit {
@@ -307,7 +355,10 @@ export class AccountComponent implements OnInit {
   notifyVotes: boolean = true;
   notifyStatusChanges: boolean = true;
   
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private themeUtils: ThemeUtilsService
+  ) {}
   
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
@@ -319,6 +370,12 @@ export class AccountComponent implements OnInit {
       this.notifyVotes = this.currentUser.notifyVotes !== false;
       this.notifyStatusChanges = this.currentUser.notifyStatusChanges !== false;
     }
+    
+    // Apply dark mode styling
+    this.themeUtils.applyDarkModeStyles('.profile-card, .section-card');
+    
+    // Listen for theme changes
+    this.themeUtils.setupThemeChangeListener('.profile-card, .section-card');
   }
   
   getDefaultProfileImage(): string {
@@ -349,6 +406,8 @@ export class AccountComponent implements OnInit {
     }
   }
 }
+
+
 
 
 

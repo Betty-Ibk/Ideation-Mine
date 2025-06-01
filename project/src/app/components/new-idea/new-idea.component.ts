@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IdeaService } from '../../services/idea.service';
+import { ThemeUtilsService } from '../../services/theme-utils.service';
 
 @Component({
   selector: 'app-new-idea',
@@ -368,6 +369,82 @@ import { IdeaService } from '../../services/idea.service';
         width: 100%;
       }
     }
+
+    /* Dark theme support */
+    :host-context([data-theme="dark"]) .main-content {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+    }
+    
+    :host-context([data-theme="dark"]) .page-title {
+      color: var(--text-primary);
+    }
+    
+    :host-context([data-theme="dark"]) .idea-form {
+      background-color: var(--card-bg);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    :host-context([data-theme="dark"]) .form-group label {
+      color: var(--text-secondary);
+    }
+    
+    :host-context([data-theme="dark"]) .form-group input,
+    :host-context([data-theme="dark"]) .form-group select,
+    :host-context([data-theme="dark"]) .form-group textarea,
+    :host-context([data-theme="dark"]) .hashtag-input {
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
+      border-color: var(--border-color);
+    }
+    
+    :host-context([data-theme="dark"]) .form-group input:focus,
+    :host-context([data-theme="dark"]) .form-group select:focus,
+    :host-context([data-theme="dark"]) .form-group textarea:focus,
+    :host-context([data-theme="dark"]) .hashtag-input:focus {
+      border-color: var(--primary-400);
+      box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.2);
+    }
+    
+    :host-context([data-theme="dark"]) .hashtag-pill {
+      background-color: var(--primary-600);
+      color: white;
+    }
+    
+    :host-context([data-theme="dark"]) .remove-hashtag {
+      color: white;
+    }
+    
+    :host-context([data-theme="dark"]) .file-upload-button {
+      background-color: var(--bg-tertiary);
+      border-color: var(--border-color);
+      color: var(--text-secondary);
+    }
+    
+    :host-context([data-theme="dark"]) .file-upload-button:hover {
+      background-color: var(--bg-secondary);
+    }
+    
+    :host-context([data-theme="dark"]) .file-upload-info {
+      color: var(--text-tertiary);
+    }
+    
+    :host-context([data-theme="dark"]) .attachment-item {
+      background-color: var(--bg-tertiary);
+    }
+    
+    :host-context([data-theme="dark"]) .attachment-name {
+      color: var(--text-secondary);
+    }
+    
+    :host-context([data-theme="dark"]) .attachment-size {
+      color: var(--text-tertiary);
+    }
+    
+    :host-context([data-theme="dark"]) .success-message {
+      background-color: rgba(20, 83, 45, 0.2);
+      color: #4ade80;
+    }
   `]
 })
 export class NewIdeaComponent {
@@ -380,7 +457,8 @@ export class NewIdeaComponent {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private ideaService: IdeaService
+    private ideaService: IdeaService,
+    private themeUtils: ThemeUtilsService
   ) {
     this.ideaForm = this.fb.group({
       title: ['', Validators.required],
@@ -392,6 +470,14 @@ export class NewIdeaComponent {
     });
     
     console.log('NewIdeaComponent initialized');
+    
+    // Apply dark mode styling
+    setTimeout(() => {
+      this.themeUtils.applyDarkModeStyles('.idea-form');
+      
+      // Listen for theme changes
+      this.themeUtils.setupThemeChangeListener('.idea-form');
+    });
   }
 
   get title() { return this.ideaForm.get('title')!; }
@@ -518,6 +604,8 @@ export class NewIdeaComponent {
     // In a real app, you would save to localStorage or a service
   }
 }
+
+
 
 
 

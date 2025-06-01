@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../services/auth.service';
 import { IdeaService, IdeaPost } from '../../../services/idea.service';
+import { ThemeUtilsService } from '../../../services/theme-utils.service';
 
 interface Comment {
   id: number;
@@ -38,7 +39,8 @@ export class AdminDashboardComponent implements OnInit {
   
   constructor(
     private authService: AuthService,
-    private ideaService: IdeaService
+    private ideaService: IdeaService,
+    private themeUtils: ThemeUtilsService
   ) {}
   
   ngOnInit(): void {
@@ -46,6 +48,12 @@ export class AdminDashboardComponent implements OnInit {
     this.loadIdeas();
     this.loadRecentActivities();
     this.loadComments();
+    
+    // Apply dark mode styling to admin dashboard components
+    this.themeUtils.applyDarkModeStyles('.admin-section, .stat-card, .top-idea-card, .activity-item, .modal-container');
+    
+    // Listen for theme changes
+    this.themeUtils.setupThemeChangeListener('.admin-section, .stat-card, .top-idea-card, .activity-item, .modal-container');
   }
   
   loadIdeas(): void {
@@ -278,6 +286,7 @@ export class AdminDashboardComponent implements OnInit {
     // In a real app, you would call a service method to update the idea
   }
 }
+
 
 
 

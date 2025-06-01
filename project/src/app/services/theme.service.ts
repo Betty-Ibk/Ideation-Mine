@@ -48,8 +48,8 @@ export class ThemeService {
   }
   
   private applyTheme(theme: Theme): void {
+    // Apply theme to document root immediately
     document.documentElement.setAttribute('data-theme', theme);
-    console.log('Theme applied to document root:', theme);
     
     // Add a class to body for additional theme control
     if (theme === 'dark') {
@@ -76,6 +76,8 @@ export class ThemeService {
     }
   }
 }
+
+
 
 
 

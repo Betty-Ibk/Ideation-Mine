@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ThemeUtilsService } from '../../services/theme-utils.service';
 import { AuthService } from '../../services/auth.service';
 
 interface Comment {
@@ -30,7 +31,7 @@ interface Idea {
   template: `
     <main class="main-content">
       <div class="container">
-        <h2 class="page-title">My Ideas</h2>
+        <h2 class="page-title" style="color: #FF7A00">My Ideas</h2>
         <div class="ideas-list">
           @for (idea of myIdeas; track idea.id) {
             <div class="idea-card">
@@ -43,7 +44,7 @@ interface Idea {
                 <div class="idea-meta">
                   <span class="timestamp">{{idea.timestamp}} by {{getDisplayName(idea.authorId, idea.authorName)}}</span>
                   <span class="stats">
-                    <span class="votes">⬆ {{idea.upvotes}} ⬇ {{idea.downvotes}}</span>
+                    <span class="votes">👍 {{idea.upvotes}} 👎 {{idea.downvotes}}</span>
                     <span class="comments">💬 {{idea.commentsList.length}} comments</span>
                   </span>
                 </div>
@@ -407,6 +408,126 @@ interface Idea {
       border-color: var(--primary-400);
       box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
     }
+
+    /* Dark theme support */
+    :host-context([data-theme="dark"]) .idea-card {
+      background-color: var(--card-bg);
+      color: var(--card-text);
+    }
+    
+    :host-context([data-theme="dark"]) .idea-title,
+    :host-context([data-theme="dark"]) .idea-description,
+    :host-context([data-theme="dark"]) .idea-meta {
+      color: var(--card-text);
+    }
+    
+    /* Status badges in dark mode - deeper colors with white text */
+    :host-context([data-theme="dark"]) .idea-status.pending {
+      background-color: #4B5563; /* Deeper neutral */
+      color: white;
+    }
+    
+    :host-context([data-theme="dark"]) .idea-status.approved {
+      background-color: #15803D; /* Deeper green */
+      color: white;
+    }
+    
+    :host-context([data-theme="dark"]) .idea-status.implemented {
+      background-color: var(--primary-700); /* Deeper orange */
+      color: white;
+    }
+    
+    /* Button styling in dark mode */
+    :host-context([data-theme="dark"]) .btn-primary {
+      background-color: var(--primary-500);
+      color: white;
+      border: none;
+    }
+    
+    :host-context([data-theme="dark"]) .btn-primary:hover {
+      background-color: var(--primary-600);
+    }
+    
+    :host-context([data-theme="dark"]) .btn-outline {
+      background-color: #3a3a3a;
+      color: white;
+      border: 1px solid #4a4a4a;
+    }
+    
+    :host-context([data-theme="dark"]) .btn-outline:hover {
+      background-color: #4a4a4a;
+    }
+    
+    /* Vote buttons in dark mode */
+    :host-context([data-theme="dark"]) .vote-btn {
+      background-color: #3a3a3a;
+      color: white;
+      border: 1px solid #4a4a4a;
+    }
+    
+    :host-context([data-theme="dark"]) .vote-btn:hover {
+      background-color: #4a4a4a;
+    }
+    
+    /* Upvote button - light orange */
+    :host-context([data-theme="dark"]) .vote-btn.upvote {
+      background-color: #FF9E44;
+      color: #1a1a1a;
+      border-color: #FF8A20;
+    }
+    
+    :host-context([data-theme="dark"]) .vote-btn.upvote:hover {
+      background-color: #FF8A20;
+    }
+    
+    /* Downvote button - light grey */
+    :host-context([data-theme="dark"]) .vote-btn.downvote {
+      background-color: #4a4a4a;
+      color: white;
+      border-color: #5a5a5a;
+    }
+    
+    :host-context([data-theme="dark"]) .vote-btn.downvote:hover {
+      background-color: #5a5a5a;
+    }
+    
+    /* Voted state styling */
+    :host-context([data-theme="dark"]) .vote-btn.voted.upvote {
+      background-color: #FF7A00;
+      color: white;
+      border-color: #E66D00;
+    }
+    
+    :host-context([data-theme="dark"]) .vote-btn.voted.downvote {
+      background-color: #3a3a3a;
+      color: white;
+      border-color: #4a4a4a;
+    }
+    
+    /* Modal styling */
+    :host-context([data-theme="dark"]) .comments-modal {
+      background-color: var(--card-bg);
+      color: var(--card-text);
+    }
+    
+    :host-context([data-theme="dark"]) .modal-header {
+      border-color: #3a3a3a;
+    }
+    
+    :host-context([data-theme="dark"]) .comment-input {
+      background-color: #3a3a3a;
+      color: white;
+      border-color: #4a4a4a;
+    }
+    
+    :host-context([data-theme="dark"]) .comment-input:focus {
+      border-color: var(--primary-500);
+      box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.2);
+    }
+    
+    :host-context([data-theme="dark"]) .comment-item {
+      border-color: #3a3a3a;
+    }
   `]
 })
 export class MyIdeasComponent implements OnInit {
@@ -438,7 +559,7 @@ export class MyIdeasComponent implements OnInit {
       timestamp: "Created 1 month ago",
       userVote: null,
       authorId: "EMP1001",
-      authorName: "Temitayo",
+      authorName: "Temitayo Awolowo",
       commentsList: [
         {text: "This is a great solution! I've seen similar systems in other banks.", authorId: "EMP1005", authorName: "Alice Johnson", timestamp: "2 months ago"},
         {text: "I'm excited to see this in action! Let's get it started.", authorId: "EMP1006", authorName: "Bob Brown", timestamp: "1 month ago"}
@@ -470,11 +591,20 @@ export class MyIdeasComponent implements OnInit {
   isAdmin: boolean = false;
   currentUser: any;
   
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private themeUtils: ThemeUtilsService
+  ) {}
   
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
     this.isAdmin = this.authService.isAdmin();
+    
+    // Apply dark mode styling
+    this.themeUtils.applyDarkModeStyles('.idea-card');
+    
+    // Listen for theme changes
+    this.themeUtils.setupThemeChangeListener('.idea-card');
   }
   
   getDisplayName(authorId: string, authorName: string): string {
@@ -578,6 +708,20 @@ export class MyIdeasComponent implements OnInit {
     this.currentPage = 0; // Go to first page to see the new comment
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

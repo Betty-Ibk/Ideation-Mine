@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { ThemeUtilsService } from '../../services/theme-utils.service';
 
 interface Comment {
   text: string;
@@ -32,7 +33,7 @@ interface Idea {
   template: `
     <main class="main-content">
       <div class="container">
-        <h2 class="page-title">Dashboard</h2>
+        <h2 class="page-title" style="color: #FF7A00">Recent Ideas</h2>
         <div class="ideas-list">
           @for (idea of ideas; track idea.id) {
             <div class="idea-card">
@@ -49,13 +50,13 @@ interface Idea {
                   class="vote-button upvote" 
                   [class.voted]="idea.userVote === 'up'"
                   (click)="vote(idea, 'up')">
-                  ⬆ {{idea.upvotes}}
+                  👍 {{idea.upvotes}}
                 </button>
                 <button 
                   class="vote-button downvote" 
                   [class.voted]="idea.userVote === 'down'"
                   (click)="vote(idea, 'down')">
-                  ⬇ {{idea.downvotes}}
+                  👎 {{idea.downvotes}}
                 </button>
                 <button class="comment-button" (click)="viewComments(idea)">
                   💬 {{idea.commentsList.length}}
@@ -182,29 +183,29 @@ interface Idea {
     .vote-button,
     .comment-button {
       padding: var(--space-1) var(--space-2);
-      border: 1px solid var(--neutral-200);
+      border: 1px solid var(--primary-200);
       border-radius: 4px;
-      background-color: white;
-      color: var(--neutral-700);
+      background-color: var(--primary-500);
+      color: white;
       cursor: pointer;
       transition: all 0.2s ease;
     }
 
     .vote-button:hover,
     .comment-button:hover {
-      background-color: var(--neutral-50);
+      background-color: var(--primary-600);
     }
 
     .vote-button.upvote.voted {
-      background-color: var(--primary-50);
-      color: var(--primary-700);
-      border-color: var(--primary-200);
+      background-color: var(--primary-600);
+      color: white;
+      border-color: var(--primary-700);
     }
     
     .vote-button.downvote.voted {
-      background-color: #fee2e2;
-      color: #dc2626;
-      border-color: #fecaca;
+      background-color: var(--neutral-600);
+      color: white;
+      border-color: var(--neutral-700);
     }
     
     /* Modal styles */
@@ -354,6 +355,65 @@ interface Idea {
       border-color: var(--primary-400);
       box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
     }
+
+    /* Dark theme support */
+    :host-context([data-theme="dark"]) .idea-card {
+      background-color: var(--card-bg);
+      color: var(--card-text);
+    }
+    
+    :host-context([data-theme="dark"]) .idea-title,
+    :host-context([data-theme="dark"]) .idea-description,
+    :host-context([data-theme="dark"]) .idea-meta {
+      color: var(--card-text);
+    }
+    
+    /* Orange buttons in dark mode */
+    :host-context([data-theme="dark"]) .vote-button,
+    :host-context([data-theme="dark"]) .comment-button {
+      background-color: var(--primary-500);
+      color: white;
+      border-color: var(--primary-600);
+    }
+    
+    :host-context([data-theme="dark"]) .vote-button:hover,
+    :host-context([data-theme="dark"]) .comment-button:hover {
+      background-color: var(--primary-600);
+      color: white;
+    }
+    
+    /* Ensure voted buttons have distinct styling */
+    :host-context([data-theme="dark"]) .vote-button.upvote.voted,
+    :host-context([data-theme="dark"]) .vote-button.downvote.voted {
+      background-color: var(--primary-700);
+      color: white;
+      border-color: var(--primary-800);
+    }
+    
+    /* Modal styling in dark mode */
+    :host-context([data-theme="dark"]) .modal-overlay {
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+    
+    :host-context([data-theme="dark"]) .modal-content {
+      background-color: var(--card-bg);
+      color: var(--card-text);
+    }
+    
+    :host-context([data-theme="dark"]) .btn-primary {
+      background-color: var(--primary-500);
+      color: white;
+    }
+    
+    :host-context([data-theme="dark"]) .btn-primary:hover {
+      background-color: var(--primary-600);
+    }
+    
+    :host-context([data-theme="dark"]) .comment-input {
+      background-color: var(--bg-tertiary);
+      color: var(--card-text);
+      border-color: var(--border-color);
+    }
   `]
 })
 export class IdeaListComponent implements OnInit {
@@ -420,7 +480,10 @@ export class IdeaListComponent implements OnInit {
   isAdmin: boolean = false;
   currentUser: any;
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private themeUtils: ThemeUtilsService
+  ) {}
   
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
@@ -430,6 +493,12 @@ export class IdeaListComponent implements OnInit {
     this.ideas.forEach(idea => {
       idea.comments = idea.commentsList.length;
     });
+
+    // Apply dark mode styling
+    this.themeUtils.applyDarkModeStyles('.idea-card');
+    
+    // Listen for theme changes
+    this.themeUtils.setupThemeChangeListener('.idea-card');
   }
   
   getDisplayName(authorId: string, authorName: string): string {
@@ -537,4 +606,11 @@ export class IdeaListComponent implements OnInit {
     this.currentPage = 0; // Go to first page to see the new comment
   }
 }
+
+
+
+
+
+
+
 

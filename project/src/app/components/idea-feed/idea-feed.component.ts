@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { IdeaService, IdeaPost } from '../../services/idea.service';
+import { ThemeUtilsService } from '../../services/theme-utils.service';
 import { Subscription } from 'rxjs';
 
 // Define Comment interface locally if not imported from service
@@ -20,7 +21,7 @@ interface Comment {
   template: `
     <main class="main-content">
       <div class="container">
-        <h1 class="page-title">Idea Feed</h1>
+        <h1 class="page-title" style="color: #FF7A00">Idea Feed</h1>
         
         <div class="filters">
           <div class="category-filters">
@@ -509,10 +510,39 @@ interface Comment {
       background-color: var(--primary-600);
     }
     
-    /* Dark theme support */
+    /* Enhanced Dark theme support */
     :host-context([data-theme="dark"]) .idea-card {
       background-color: var(--card-bg);
-      color: var(--text-primary);
+      color: var(--card-text);
+    }
+    
+    :host-context([data-theme="dark"]) .idea-title,
+    :host-context([data-theme="dark"]) .idea-content,
+    :host-context([data-theme="dark"]) .idea-meta,
+    :host-context([data-theme="dark"]) .idea-author {
+      color: var(--card-text);
+    }
+    
+    /* Orange buttons in dark mode */
+    :host-context([data-theme="dark"]) .vote-btn,
+    :host-context([data-theme="dark"]) .comment-btn {
+      background-color: var(--primary-500);
+      color: white;
+      border-color: var(--primary-600);
+    }
+    
+    :host-context([data-theme="dark"]) .vote-btn:hover,
+    :host-context([data-theme="dark"]) .comment-btn:hover {
+      background-color: var(--primary-600);
+      color: white;
+    }
+    
+    /* Ensure voted buttons have distinct styling */
+    :host-context([data-theme="dark"]) .vote-btn.voted.upvote,
+    :host-context([data-theme="dark"]) .vote-btn.voted.downvote {
+      background-color: var(--primary-700);
+      color: white;
+      border-color: var(--primary-800);
     }
     
     :host-context([data-theme="dark"]) .comments-modal {
@@ -520,10 +550,48 @@ interface Comment {
       color: var(--text-primary);
     }
     
-    :host-context([data-theme="dark"]) .comment-input {
+    :host-context([data-theme="dark"]) .comments-title {
+      color: var(--text-primary);
+    }
+    
+    :host-context([data-theme="dark"]) .comment-content {
+      color: var(--text-secondary);
+    }
+    
+    :host-context([data-theme="dark"]) .category-pill {
+      background-color: var(--bg-tertiary);
+      color: var(--text-secondary);
+      border-color: var(--border-color);
+    }
+    
+    :host-context([data-theme="dark"]) .category-pill.active {
+      background-color: var(--primary-600);
+      color: white;
+      border-color: var(--primary-700);
+    }
+    
+    :host-context([data-theme="dark"]) .search-input {
       background-color: var(--bg-tertiary);
       color: var(--text-primary);
       border-color: var(--border-color);
+    }
+    
+    :host-context([data-theme="dark"]) .idea-attachments {
+      background-color: var(--bg-tertiary);
+    }
+    
+    :host-context([data-theme="dark"]) .attachments-title {
+      color: var(--text-primary);
+    }
+    
+    :host-context([data-theme="dark"]) .attachment-item {
+      color: var(--text-secondary);
+    }
+    
+    :host-context([data-theme="dark"]) .idea-author,
+    :host-context([data-theme="dark"]) .idea-time,
+    :host-context([data-theme="dark"]) .comment-time {
+      color: var(--text-tertiary);
     }
     
     @media (max-width: 640px) {
@@ -555,7 +623,10 @@ export class IdeaFeedComponent implements OnInit, OnDestroy {
   selectedIdea: IdeaPost | null = null;
   newComment: string = '';
   
-  constructor(private ideaService: IdeaService) {}
+  constructor(
+    private ideaService: IdeaService,
+    private themeUtils: ThemeUtilsService
+  ) {}
   
   ngOnInit(): void {
     this.subscription = this.ideaService.getIdeas().subscribe(ideas => {
@@ -578,40 +649,12 @@ export class IdeaFeedComponent implements OnInit, OnDestroy {
       
       this.applyFilters();
       
-      // Apply card styling based on current theme
-      setTimeout(() => {
-        const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
-        const cards = document.querySelectorAll('.idea-card');
-        
-        cards.forEach(card => {
-          if (isDarkMode) {
-            (card as HTMLElement).style.setProperty('background-color', '#f5f5f5', 'important');
-            (card as HTMLElement).style.setProperty('color', '#333333', 'important');
-          } else {
-            (card as HTMLElement).style.setProperty('background-color', 'white', 'important');
-            (card as HTMLElement).style.setProperty('color', '', 'important');
-          }
-        });
-      }, 100);
+      // Apply dark mode styling
+      this.themeUtils.applyDarkModeStyles('.idea-card');
     });
     
     // Listen for theme changes
-    document.addEventListener('themeChanged', (e: Event) => {
-      setTimeout(() => {
-        const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
-        const cards = document.querySelectorAll('.idea-card');
-        
-        cards.forEach(card => {
-          if (isDarkMode) {
-            (card as HTMLElement).style.setProperty('background-color', '#f5f5f5', 'important');
-            (card as HTMLElement).style.setProperty('color', '#333333', 'important');
-          } else {
-            (card as HTMLElement).style.setProperty('background-color', 'white', 'important');
-            (card as HTMLElement).style.setProperty('color', '', 'important');
-          }
-        });
-      }, 100);
-    });
+    this.themeUtils.setupThemeChangeListener('.idea-card');
   }
   
   ngOnDestroy(): void {
@@ -713,6 +756,10 @@ export class IdeaFeedComponent implements OnInit, OnDestroy {
     }
   }
 }
+
+
+
+
 
 
 

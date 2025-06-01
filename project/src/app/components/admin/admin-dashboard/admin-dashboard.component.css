@@ -565,3 +565,263 @@ th {
   float: right;
 }
 
+/* Dark mode styles for admin dashboard */
+:host-context([data-theme="dark"]) .admin-dashboard {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+:host-context([data-theme="dark"]) .page-title {
+  color: var(--primary-500);
+}
+
+:host-context([data-theme="dark"]) .stat-card {
+  background-color: var(--card-bg);
+  color: var(--card-text);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+:host-context([data-theme="dark"]) .stat-number {
+  color: var(--primary-400);
+}
+
+:host-context([data-theme="dark"]) .stat-label {
+  color: var(--card-text);
+}
+
+:host-context([data-theme="dark"]) .admin-section {
+  background-color: var(--card-bg);
+  color: var(--card-text);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+:host-context([data-theme="dark"]) .section-title {
+  color: var(--primary-500);
+  border-bottom-color: #3a3a3a;
+}
+
+:host-context([data-theme="dark"]) .top-idea-card {
+  border-color: #3a3a3a;
+  background-color: #2d2d2d;
+}
+
+:host-context([data-theme="dark"]) .idea-title {
+  color: var(--card-text);
+}
+
+:host-context([data-theme="dark"]) .idea-meta {
+  color: var(--text-tertiary);
+}
+
+:host-context([data-theme="dark"]) .activity-item {
+  background-color: #2d2d2d;
+}
+
+:host-context([data-theme="dark"]) .activity-item.new-idea {
+  background-color: #1a365d;
+}
+
+:host-context([data-theme="dark"]) .activity-item.vote {
+  background-color: #1e3a2f;
+}
+
+:host-context([data-theme="dark"]) .activity-item.comment {
+  background-color: #3d3522;
+}
+
+:host-context([data-theme="dark"]) .activity-text {
+  color: var(--card-text);
+}
+
+:host-context([data-theme="dark"]) .activity-time {
+  color: var(--text-tertiary);
+}
+
+:host-context([data-theme="dark"]) .search-box input,
+:host-context([data-theme="dark"]) .status-filter select {
+  background-color: #2d2d2d;
+  color: var(--card-text);
+  border-color: #3a3a3a;
+}
+
+:host-context([data-theme="dark"]) th {
+  background-color: #2d2d2d;
+  color: var(--primary-500);
+}
+
+:host-context([data-theme="dark"]) td {
+  color: var(--card-text);
+  border-bottom-color: #3a3a3a;
+}
+
+:host-context([data-theme="dark"]) tr:hover {
+  background-color: #2d2d2d;
+}
+
+/* Modal styles for dark mode */
+:host-context([data-theme="dark"]) .modal-container {
+  background-color: var(--card-bg);
+  color: var(--card-text);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+:host-context([data-theme="dark"]) .modal-header {
+  border-bottom-color: #3a3a3a;
+}
+
+:host-context([data-theme="dark"]) .modal-title {
+  color: var(--primary-500);
+}
+
+:host-context([data-theme="dark"]) .modal-close {
+  color: var(--text-tertiary);
+}
+
+:host-context([data-theme="dark"]) .idea-author,
+:host-context([data-theme="dark"]) .idea-time {
+  color: var(--text-tertiary);
+}
+
+:host-context([data-theme="dark"]) .idea-content p {
+  color: var(--card-text);
+}
+
+:host-context([data-theme="dark"]) .idea-tag {
+  background-color: #3a3a3a;
+  color: var(--text-tertiary);
+}
+
+:host-context([data-theme="dark"]) .comment-item {
+  background-color: #2d2d2d;
+  border-bottom-color: #3a3a3a;
+}
+
+:host-context([data-theme="dark"]) .comment-item:hover {
+  background-color: #333333;
+}
+
+:host-context([data-theme="dark"]) .comment-author {
+  color: var(--primary-400);
+}
+
+:host-context([data-theme="dark"]) .comment-time {
+  color: var(--text-tertiary);
+}
+
+:host-context([data-theme="dark"]) .comment-content p {
+  color: var(--card-text);
+}
+
+:host-context([data-theme="dark"]) .add-comment textarea {
+  background-color: #2d2d2d;
+  color: var(--card-text);
+  border-color: #3a3a3a;
+}
+
+:host-context([data-theme="dark"]) .add-comment textarea:focus {
+  border-color: var(--primary-500);
+  outline: none;
+}
+
+/* Status badges in dark mode */
+:host-context([data-theme="dark"]) .status-badge.pending {
+  background-color: #4B5563;
+  color: white;
+}
+
+:host-context([data-theme="dark"]) .status-badge.approved {
+  background-color: #15803D;
+  color: white;
+}
+
+:host-context([data-theme="dark"]) .status-badge.rejected {
+  background-color: #9B1C1C;
+  color: white;
+}
+
+:host-context([data-theme="dark"]) .status-badge.implemented {
+  background-color: var(--primary-700);
+  color: white;
+}
+
+/* Vote counts in dark mode */
+:host-context([data-theme="dark"]) .vote-count.upvotes {
+  color: #4caf50;
+}
+
+:host-context([data-theme="dark"]) .vote-count.downvotes {
+  color: #f44336;
+}
+
+/* Vote bars in dark mode */
+:host-context([data-theme="dark"]) .vote-bars {
+  background-color: #3a3a3a;
+}
+
+:host-context([data-theme="dark"]) .vote-bar.upvotes {
+  background-color: #4caf50;
+}
+
+:host-context([data-theme="dark"]) .vote-bar.downvotes {
+  background-color: #f44336;
+}
+
+/* Button styles for dark mode in admin dashboard */
+:host-context([data-theme="dark"]) .btn-outline {
+  background-color: #3a3a3a;
+  color: white;
+  border-color: #4a4a4a;
+}
+
+:host-context([data-theme="dark"]) .btn-outline:hover {
+  background-color: #4a4a4a;
+  color: white;
+  border-color: #5a5a5a;
+}
+
+/* Specific styling for action buttons in the table */
+:host-context([data-theme="dark"]) .actions .btn-sm.btn-outline {
+  background-color: #3a3a3a;
+  color: white;
+  border-color: #4a4a4a;
+}
+
+:host-context([data-theme="dark"]) .actions .btn-sm.btn-outline:hover {
+  background-color: #4a4a4a;
+  color: white;
+  border-color: #5a5a5a;
+}
+
+/* Ensure text buttons are also visible */
+:host-context([data-theme="dark"]) .btn-text {
+  color: var(--primary-400);
+}
+
+:host-context([data-theme="dark"]) .btn-text:hover {
+  background-color: rgba(255, 122, 0, 0.2);
+  color: var(--primary-300);
+}
+
+/* Ensure all action buttons have good contrast */
+:host-context([data-theme="dark"]) .actions button {
+  margin: 2px;
+}
+
+:host-context([data-theme="dark"]) .actions .btn-success {
+  background-color: #15803D;
+  color: white;
+}
+
+:host-context([data-theme="dark"]) .actions .btn-success:hover {
+  background-color: #166534;
+}
+
+:host-context([data-theme="dark"]) .actions .btn-danger {
+  background-color: #9B1C1C;
+  color: white;
+}
+
+:host-context([data-theme="dark"]) .actions .btn-danger:hover {
+  background-color: #7F1D1D;
+}
+
